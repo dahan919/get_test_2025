@@ -1,4 +1,5 @@
-<%@ page contentType="text/html; charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -23,30 +24,6 @@
       text-align: center;
       margin-bottom: 20px;
       color: #333;
-    }
-
-    .search-container {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .search-container input {
-      padding: 10px;
-      width: 250px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-    }
-
-    .search-container button {
-      padding: 10px;
-      background-color: #ddd;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .search-container button:hover {
-      background-color: #bbb;
     }
 
     .tabs-wrapper {
@@ -83,6 +60,30 @@
       display: none;
     }
 
+    .tab-search {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .tab-search input {
+      padding: 10px;
+      width: 250px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+
+    .tab-search button {
+      padding: 10px;
+      background-color: #ddd;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .tab-search button:hover {
+      background-color: #bbb;
+    }
+
     ul {
       padding: 0;
       list-style-type: none;
@@ -97,15 +98,18 @@
       border-radius: 5px;
     }
 
+    .li-buttons {
+      margin-top: 10px;
+    }
+
     button {
-      margin-top: 5px;
-      margin-right: 10px;
       padding: 5px 10px;
       background-color: #0074D9;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      margin-right: 10px;
     }
 
     button:hover {
@@ -149,11 +153,6 @@
 <div class="container">
   <div class="header"><h1>관리자 페이지</h1></div>
 
-  <div class="search-container">
-    <input type="text" placeholder="검색..." />
-    <button>검색</button>
-  </div>
-
   <div class="tabs-wrapper">
     <div class="tabs">
       <div class="tab" onclick="showTab('member')">회원관리</div>
@@ -164,29 +163,74 @@
     <a href="notice.jsp" class="tab">쓰기</a>
   </div>
 
-  <!-- 탭별 내용 -->
   <div id="member" class="tab-content">
-    <ul>
-      <li>회원 A (예시)</li>
-      <li>회원 B (예시)</li>
+    <div class="tab-search">
+      <input type="text" placeholder="회원 검색..." />
+      <button>검색</button>
+    </div>
+    <ul id="memberList">
+      <li>
+        회원 A
+        <div class="li-buttons">
+          <button onclick="showDeleteModal(this)">삭제</button>
+        </div>
+      </li>
+      <li>
+        회원 B
+        <div class="li-buttons">
+          <button onclick="showDeleteModal(this)">삭제</button>
+        </div>
+      </li>
     </ul>
   </div>
 
   <div id="content" class="tab-content">
-    <ul>
-      <li>영화 A 등록됨</li>
-      <li>드라마 B 등록됨</li>
+    <div class="tab-search">
+      <input type="text" placeholder="콘텐츠 검색..." />
+      <button>검색</button>
+    </div>
+    <ul id="contentList">
+      <li>
+        영화 A 등록됨
+        <div class="li-buttons">
+          <button onclick="showDeleteModal(this)">삭제</button>
+        </div>
+      </li>
+      <li>
+        드라마 B 등록됨
+        <div class="li-buttons">
+          <button onclick="showDeleteModal(this)">삭제</button>
+        </div>
+      </li>
     </ul>
   </div>
 
   <div id="comment" class="tab-content">
-    <ul>
-      <li>회원 A: 이 영화 너무 좋아요</li>
-      <li>회원 B: 별로에요</li>
+    <div class="tab-search">
+      <input type="text" placeholder="댓글 검색..." />
+      <button>검색</button>
+    </div>
+    <ul id="commentList">
+      <li>
+        회원 A: 이 영화 너무 좋아요
+        <div class="li-buttons">
+          <button onclick="showDeleteModal(this)">삭제</button>
+        </div>
+      </li>
+      <li>
+        회원 B: 별로에요
+        <div class="li-buttons">
+          <button onclick="showDeleteModal(this)">삭제</button>
+        </div>
+      </li>
     </ul>
   </div>
 
   <div id="notice" class="tab-content">
+    <div class="tab-search">
+      <input type="text" placeholder="공지사항 검색..." />
+      <button>검색</button>
+    </div>
     <ul id="adminNoticeList"></ul>
   </div>
 </div>
@@ -201,6 +245,7 @@
 </div>
 
 <script>
+  let deleteTarget = null;
   let deleteIndex = null;
 
   function loadAdminNotices() {
@@ -213,41 +258,53 @@
       return;
     }
 
-    notices.forEach(function(notice, index) {
+    notices.forEach((notice, index) => {
       const li = document.createElement('li');
-      li.innerHTML = 
+      li.innerHTML =
         '<strong>제목:</strong> ' + notice.title + '<br>' +
         '<strong>내용:</strong> ' + notice.content + '<br>' +
         '<strong>작성일자:</strong> ' + notice.date + '<br>' +
-        '<button onclick="editNotice(' + index + ')">수정</button> ' +
-        '<button onclick="deleteNotice(' + index + ')">삭제</button>';
+        '<div class="li-buttons">' +
+          '<button onclick="editNotice(' + index + ')">수정</button>' +
+          '<button onclick="deleteNotice(' + index + ')">삭제</button>' +
+        '</div>';
       list.appendChild(li);
     });
   }
 
   function editNotice(index) {
-    localStorage.setItem('editIndex', index);
-    window.location.href = 'notice.jsp';
-  }
+	    localStorage.setItem('editIndex', index);
+	    window.location.href = 'notice.jsp';
+	  }
 
   function deleteNotice(index) {
     deleteIndex = index;
+    deleteTarget = null;
+    document.getElementById('deleteModal').style.display = 'block';
+  }
+
+  function showDeleteModal(button) {
+    deleteTarget = button.closest('li');
+    deleteIndex = null;
     document.getElementById('deleteModal').style.display = 'block';
   }
 
   function confirmDelete() {
+    if (deleteTarget) {
+      deleteTarget.remove();
+    }
     if (deleteIndex !== null) {
       const notices = JSON.parse(localStorage.getItem('notices') || '[]');
       notices.splice(deleteIndex, 1);
       localStorage.setItem('notices', JSON.stringify(notices));
       loadAdminNotices();
-      deleteIndex = null;
-      closeDeleteModal();
     }
+    closeDeleteModal();
   }
 
   function closeDeleteModal() {
     document.getElementById('deleteModal').style.display = 'none';
+    deleteTarget = null;
     deleteIndex = null;
   }
 
@@ -269,5 +326,6 @@
     showTab(tabName);
   };
 </script>
+
 </body>
 </html>
